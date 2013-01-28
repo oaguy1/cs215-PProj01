@@ -39,10 +39,11 @@ int main(void)
         }
 
         /**
-         * After reading user input, the steps are:
-         * (1) fork a child process
-         * (2) the child process will invoke execvp()
-         * (3) if command included &, parent will invoke wait()
+         * The steps are:                          
+         * (1) parse the input to obtain the command and parameters
+         * (2) invoke execvp() to start the process
+         * (3) Obtain the output stream                       
+	 * (4) Output the contents returned by the command 
          */
     }//while
 
