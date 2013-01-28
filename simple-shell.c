@@ -5,6 +5,14 @@
  * Copyright John Wiley & Sons - 2013
  */
 
+ /**
+  * The steps are:                          
+  * (1) parse the input to obtain the command and parameters
+  * (2) invoke execvp() to start the process
+  * (3) Obtain the output stream                       
+  * (4) Output the contents returned by the command 
+  */ 
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -37,14 +45,6 @@ int main(void)
             printf("I am the parent %d\n",pid);
 	    wait(NULL);
         }
-
-        /**
-         * The steps are:                          
-         * (1) parse the input to obtain the command and parameters
-         * (2) invoke execvp() to start the process
-         * (3) Obtain the output stream                       
-	 * (4) Output the contents returned by the command 
-         */
     }//while
 
     return 0;
