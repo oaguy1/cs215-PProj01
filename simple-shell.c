@@ -36,7 +36,7 @@ int main(void)
         } else {
             printf("I am the parent %d\n",pid);
 	    wait(NULL);
-        }//while
+        }
 
         /**
          * After reading user input, the steps are:
@@ -44,7 +44,7 @@ int main(void)
          * (2) the child process will invoke execvp()
          * (3) if command included &, parent will invoke wait()
          */
-    }
+    }//while
 
     return 0;
 }
