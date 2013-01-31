@@ -3,3 +3,5 @@
 [Explanation of execvp](http://linux.die.net/man/3/execvp)
 
 [Keyboard input in C](http://gd.tuwien.ac.at/languages/c/programming-bbrown/c_016.htm)
+
+[Most relevant stackoverflow post in the history of CS] http://stackoverflow.com/questions/1319964/trying-to-use-execvp-in-c-with-user-input-in-unix
