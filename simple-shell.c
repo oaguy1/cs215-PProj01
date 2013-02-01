@@ -13,13 +13,33 @@
 
 #define MAX_LINE		80  /* 80 chars per line, per command */
 
+void execute(char** argv){ 
+    pid_t pid;  
+    int status; 
+    pid = fork(); 
+
+   if (pid < 0){ 
+   	printf("Your fork has failed you\n"); 
+	exit(1); 
+   } else if (pid == 0){
+   	if(execvp(argv[0], argv) < 0){
+        	printf("Your child has failed you\n");
+	       exit(1); 	
+	}
+   } else { 
+   	while(wait(&status) != pid)
+		;
+   } 
+    
+} 
+
 int main(void)
 {
     char *temp = NULL;
     int should_run = 1;
-    pid_t pid;
+   
     char *cmd[MAX_LINE];
-	char input[MAX_LINE];
+    char input[MAX_LINE];
     
     while (should_run){
         printf("jdcsh>");
@@ -30,9 +50,7 @@ int main(void)
         printf("\n"); //new line
         
         //Parse the input into cmd and argumentsi
-        
         cmd[0] = strtok(input, " ");
-        
         temp = strtok(NULL, " ");
         
         while (temp != NULL) {
@@ -44,20 +62,13 @@ int main(void)
         //remove the \n that gets added to the end
         int lcmd_len = (int) strlen(cmd[num_args]);
         cmd[num_args][lcmd_len-1] = '\0';
-        
-        pid = fork();
-        
-        // evaluate command
-        if (pid < 0) {
-            fprintf(stderr, "Your fork has failed you.\n");
-            return 1; 
-        } else if(!strcmp(cmd[0], "exit")) {
-            printf("You have failed me for the last time, commander!\n");
-            exit(0); 
-        } else {
-            //broken here we need to put in the file in argument 1.
-            execvp(cmd[0], cmd);
-        }
+    	
+        if(!strcmp(cmd[0], "exit") || !strcmp(cmd[0], "quit")){ 
+        	printf("You have failed me for the last time commander\n"); 
+		exit(0); 
+	}
+
+	execute(cmd); 
     }//while
     
     return 0;
