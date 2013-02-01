@@ -8,6 +8,7 @@ cs215-PProj01
 The Project consists of 3 parts. 
 
 #### Part 1: Creating the external process and executing the command in that process. 
+##### Status: Implemented.
 
 	1. Parse command for parameters.
 		-strtok (string.h) 
@@ -16,9 +17,13 @@ The Project consists of 3 parts.
 
 #### Part 2: Modifying the shell to changing directories.
 
+##### Status: Needs-to-be-Implemented.
+
 	* Support for 'cd' command. 
 
-#### Part 3: Adding a history feature.  
+#### Part 3: Adding a history feature.
+
+##### Status: Needs-to-be-Implemented.   
 
 	1. Enter commands into history.
 	2. Enter support for the command history (with the command numbers). 
