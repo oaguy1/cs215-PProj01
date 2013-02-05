@@ -17,12 +17,12 @@ The Project consists of 3 parts.
 
 #### Part 2: Modifying the shell to changing directories.
 
-##### Status: In-Progress.
+##### Status: In-Progress
 
-	**Works**
+###### Works.
         * Support for 'cd' command with absolute paths
         
-        **Needs Work**
+###### Needs Work.
         * Support for relative paths
 
 #### Part 3: Adding a history feature.
