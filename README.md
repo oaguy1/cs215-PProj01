@@ -17,9 +17,13 @@ The Project consists of 3 parts.
 
 #### Part 2: Modifying the shell to changing directories.
 
-##### Status: Needs-to-be-Implemented.
+##### Status: In-Progress.
 
-	* Support for 'cd' command. 
+	**Works**
+        * Support for 'cd' command with absolute paths
+        
+        **Needs Work**
+        * Support for relative paths
 
 #### Part 3: Adding a history feature.
 
