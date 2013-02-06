@@ -49,7 +49,7 @@ int main(void)
     
     while (should_run){
         // grab current working directory and print prompt
-        getwd(cwd);
+        cwd = getwd(cwd);
         printf("jdcsh: %s>", cwd);
         fflush(stdout);
         
@@ -70,8 +70,6 @@ int main(void)
         //remove the \n that gets added to the end
         int lcmd_len = (int) strlen(cmd[num_args]);
         cmd[num_args][lcmd_len-1] = '\0';
-        
-        
         
         execute(cmd); 
     }//while
