@@ -1,3 +1,8 @@
-0 cd .. 
+0 echo hello 
 1 ls -la 
-2 history 
+2 cd .. 
+3 !! 
+4 history 
+5 exit 
+5 exit 
+3 exit 
