@@ -40,7 +40,7 @@ void execute(char** argv){
 
 int main(void)
 {
-    char *cwd[FILENAME_MAX];
+    char *cwd = NULL;
     char *temp = NULL;
     int should_run = 1;
 
@@ -49,11 +49,7 @@ int main(void)
 
     while (should_run){
         // grab current working directory and print prompt
-<<<<<<< HEAD
         cwd = getwd(cwd); 
-=======
-        cwd = getwd(cwd);
->>>>>>> Revert "more junk"
         printf("jdcsh: %s>", cwd);
         fflush(stdout);
 
