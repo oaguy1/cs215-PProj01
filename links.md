@@ -1,4 +1,4 @@
-[GitHub Repo](https://github.com/oaguy1/cs215-PProj01)
+[GitHu Repo](https://github.com/oaguy1/cs215-PProj01)
 
 [Explanation of execvp](http://linux.die.net/man/3/execvp)
 
@@ -11,3 +11,7 @@
 [change directories in c](http://linux.die.net/man/2/chdir)
 
 [get current working directory in POSIX](http://linux.die.net/man/2/getcwd)
+
+[flush memory of a char array](http://stackoverflow.com/questions/1559487/how-to-empty-a-char-array)
+
+
