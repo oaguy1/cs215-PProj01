@@ -49,22 +49,14 @@ int main(void)
 
     while (should_run){
         // grab current working directory and print prompt
-<<<<<<< HEAD
-        cwd = getwd(cwd);
-=======
         cwd = getwd(cwd); 
->>>>>>> more junk
         printf("jdcsh: %s>", cwd);
         fflush(stdout);
 
         int num_args = 0;
         fgets(input, MAX_LINE, stdin);
-<<<<<<< HEAD
         printf("\n"); //new line
 
-=======
-        
->>>>>>> Removed a newline to clean up output
         //Parse the input into cmd and arguments
         cmd[0] = strtok(input, " ");
         temp = strtok(NULL, " ");
@@ -78,14 +70,12 @@ int main(void)
         //remove the \n that gets added to the end
         int lcmd_len = (int) strlen(cmd[num_args]);
         cmd[num_args][lcmd_len-1] = '\0';
-<<<<<<< HEAD
         
-=======
+        execute(cmd);
 
-
-
->>>>>>> Revert "I don't what I did"
-        execute(cmd); 
+        // flush *cmd so that it is completely empty,
+        // prevents residual commands being passed
+        memset(cmd, 0, sizeof(cmd));
     }//while
 
     return 0;
