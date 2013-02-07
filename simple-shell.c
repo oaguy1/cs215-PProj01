@@ -17,16 +17,28 @@
 FILE *history_file;
 int h_count = 0;
 
-void save_in_hist(char** cmd){ 
+int save_in_hist(char** cmd, int args, int count){ 
+    int i; 
+    
     history_file = fopen("history.txt", "a"); 
+    
     if (!history_file){
         printf("history read error"); 
     }
-    fprintf (history_file, "%d %s\n", h_count++, cmd[0]);
-    fclose(history_file);    
+    
+    printf("saving cmd: %s, to count: %d\n", cmd[0], count); 
+    
+    fprintf (history_file, "%d %s ", count, cmd[0]);
+    
+    for (i=1; i<=args; i++){
+         fprintf (history_file, "%s ", cmd[i]); 
+    }
+
+    fprintf (history_file, "\n"); 
+    fclose(history_file);
 }
 
-char* get_from_hist(int num){//void for now 
+char* get_from_hist(int num){ 
     char* hist_cmd;
     int i;
 
@@ -40,16 +52,32 @@ char* get_from_hist(int num){//void for now
     //get the right line
     for (i = 0; i <= num; i++){
         fgets(hist_cmd, MAX_LINE, history_file);
+	printf("hist_cmd: %s\n", hist_cmd); 
     }//for
 
     fclose(history_file); 
     return hist_cmd; 
 }
 
-int execute(char** argv) { 
+int execute(char** argv, int argi) { 
     pid_t pid;  
     int status; 
     pid = fork(); 
+
+    //exit case
+    if (!strcmp(argv[0], "exit") || !strcmp(argv[0], "quit")){
+    	exit(1); 
+    }//if
+
+    //change directory
+    if (!strcmp(argv[0], "cd")){
+    	chdir(argv[1]); 
+    }//if
+
+    //run last cmd
+    if (!strcmp(argv[0], "!!")){
+        printf("run last command \n");
+    }//if
 
     if (pid < 0){ 
         exit(1); 
@@ -57,10 +85,6 @@ int execute(char** argv) {
         if(execvp(argv[0], argv) < 0){
             exit(1); 	
         }//if
-    } else if(!strcmp(argv[0], "exit") || !strcmp(argv[0], "quit")){ 
-        exit(1); 
-    } else if(!strcmp(argv[0], "cd")) {
-        chdir(argv[1]);
     } else { 
         while(wait(&status) != pid)
             ;// do nothing
@@ -75,6 +99,13 @@ int main(void) {
 
     char *cmd[MAX_LINE];
     char input[MAX_LINE];
+
+    //clear history
+    history_file = fopen("history.txt", "w"); 
+    if (!history_file){ 
+          printf("history file could not open \n"); 
+    }
+    fclose(history_file); 
 
     while (should_run){
         // grab current working directory and print prompt
@@ -98,9 +129,13 @@ int main(void) {
         // remove the \n that gets added to the end
         int lcmd_len = (int) strlen(cmd[num_args]);
         cmd[num_args][lcmd_len-1] = '\0';
+        
+	save_in_hist(cmd, num_args, h_count); 
 
-        error = execute(cmd);
-
+	execute(cmd, num_args);
+	
+	h_count++;
+        
         // flush *cmd so that it is completely empty,
         // prevents residual commands being passed
         memset(cmd, 0, sizeof(cmd));
@@ -108,4 +143,3 @@ int main(void) {
 
     return 0;
 }//main
-
