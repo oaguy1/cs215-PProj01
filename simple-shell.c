@@ -13,61 +13,30 @@
 
 #define MAX_LINE		80  /* 80 chars per line, per command */
 
-FILE *history_file;
-int h_count = 0;
-
-int execute(char** argv){
+void execute(char** argv){
     pid_t pid;
     int status;
     pid = fork();
-
-    save_in_hist(argv); //temp spot saving twice
-
+    
     if (pid < 0){
         printf("Your fork has failed you\n");
-        return 1;
+        exit(1);
     } else if (pid == 0){
         if(execvp(argv[0], argv) < 0){
             printf("Your child has failed you\n");
-            return 1;
-	}
+            exit(1);
+        }
     } else if(!strcmp(argv[0], "exit") || !strcmp(argv[0], "quit")){
         printf("You have failed me for the last time commander\n");
-        return 1;
+        exit(0);
     } else if(!strcmp(argv[0], "cd")) {
-        if (chdir(argv[1]) == -1)
-            printf("Error: chdir() has failed you");
+        chdir(argv[1]);
     } else {
         while(wait(&status) != pid)
             ;// do nothing
     }
     
 }
-
-void save_in_hist(char** cmd){ 
-       history_file = fopen("history.txt", "a"); 
-       if (!history_file){
-            printf("history read error"); 
-       }
-       fprintf (history_file, "%d %s\n", h_count++, cmd[0]);
-       fclose(history_file);    
-}
-                                          
-char*  get_from_hist(int num){//void for now 
-       
-	char* hist_cmd;
-
-       history_file = fopen("history.txt", "r"); 
-       if (!history_file){ 
-            printf("history read error"); 
-       }
-       //get the right line
-       //for (int i = 0; i <= num; i++){
-       //		gets (hist_cmd, 100, history_file); 
-       //}
-       fclose(history_file); 
-       return hist_cmd; 
-} 
 
 int main(void)
 {
@@ -78,16 +47,6 @@ int main(void)
     char *cmd[MAX_LINE];
     char input[MAX_LINE];
     
-    //prime the history file
-    history_file = fopen("history.txt", "w"); 
-
-    if (!history_file){
-	    printf("Error with history"); 
-	    return 0; 
-    }
-   
-    fclose(history_file); 
-
     while (should_run){
         // grab current working directory and print prompt
 <<<<<<< HEAD
@@ -116,7 +75,6 @@ int main(void)
         int lcmd_len = (int) strlen(cmd[num_args]);
         cmd[num_args][lcmd_len-1] = '\0';
         
-<<<<<<< HEAD
 <<<<<<< HEAD
         execute(cmd);
 
@@ -155,12 +113,6 @@ int main(void)
 >>>>>>> Revert "Revert "junk""
 =======
 >>>>>>> Revert "Revert "Revert "junk"""
-=======
-        if (execute(cmd) == 1){
-            //exit
-            return 1;
-        }
->>>>>>> junk commit
     }//while
     
     return 0;

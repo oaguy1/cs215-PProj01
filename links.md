@@ -11,30 +11,3 @@
 [change directories in c](http://linux.die.net/man/2/chdir)
 
 [get current working directory in POSIX](http://linux.die.net/man/2/getcwd)
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
-
-[unistd.h docs](http://pubs.opengroup.org/onlinepubs/7908799/xsh/unistd.h.html)
-
