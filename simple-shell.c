@@ -14,132 +14,168 @@
 #define MAX_LINE		80  /* 80 chars per line, per command */
 
 //Global Variable
+char *hist_file_name = "/.history";
+char *home_path;
 FILE *history_file;
 int h_count = 0;
 
+void view_hist(){
+	int i;
+	char* temp;  
+	history_file = fopen(home_path, "r");
+	if (!history_file){
+		printf("Could not open the history"); 
+	}
+	
+	printf("\n"); 
+	
+	for (i = 0; i<=h_count; i++){
+		fgets(temp, MAX_LINE, history_file);
+		printf("%s\n", temp); 	
+	}
+}
+
 int save_in_hist(char** cmd, int args, int count){ 
-    int i; 
-    
-    history_file = fopen("history.txt", "a"); 
-    
-    if (!history_file){
-        printf("history read error"); 
-    }
-    
-    printf("saving cmd: %s, to count: %d\n", cmd[0], count); 
-    
-    fprintf (history_file, "%d %s ", count, cmd[0]);
-    
-    for (i=1; i<=args; i++){
-         fprintf (history_file, "%s ", cmd[i]); 
-    }
+	int i; 
 
-    fprintf (history_file, "\n"); 
-    fclose(history_file);
+	history_file = fopen(home_path, "a"); 
+
+	if (!history_file){
+		printf("history read error"); 
+	}
+
+	printf("saving cmd: %s, to count: %d\n", cmd[0], count); 
+
+	fprintf (history_file, "%d %s ", count, cmd[0]);
+
+	for (i=1; i<=args; i++){
+		fprintf (history_file, "%s ", cmd[i]); 
+	}
+
+	fprintf (history_file, "\n"); 
+	fclose(history_file);
 }
 
-char* get_from_hist(int num){ 
-    char* hist_cmd;
-    int i;
+char** get_from_hist(int num){ 
+	char** hist_cmd;
+	int i;
 
-    history_file = fopen("history.txt", "r"); 
-    
-    if(!history_file) { 
-        printf("History Read Error:\n");
-        printf("Those who forget their history are doomed to repeat it...\n");
-    }//if
+	history_file = fopen(home_path, "r"); 
 
-    //get the right line
-    for (i = 0; i <= num; i++){
-        fgets(hist_cmd, MAX_LINE, history_file);
+	if(!history_file) { 
+		printf("History Read Error:\n");
+		printf("Those who forget their history are doomed to repeat it...\n");
+	}//if
+
+	//get the right line
+	for (i = 0; i <= num; i++){
+		fgets(hist_cmd, MAX_LINE, history_file);
+		printf("hist_cmd: %s\n", hist_cmd); 
+	}//for
+
+	fclose(history_file); 
 	printf("hist_cmd: %s\n", hist_cmd); 
-    }//for
 
-    fclose(history_file); 
-    return hist_cmd; 
+	return hist_cmd; 
 }
 
-int execute(char** argv, int argi) { 
-    pid_t pid;  
-    int status; 
-    pid = fork(); 
+int execute(char** argv) { 
+	pid_t pid;  
+	int status;
+	int exe_r;  
+	pid = fork(); 
 
-    //exit case
-    if (!strcmp(argv[0], "exit") || !strcmp(argv[0], "quit")){
-    	exit(1); 
-    }//if
+	//exit case
+	if (!strcmp(argv[0], "exit") || !strcmp(argv[0], "quit")){
+		exit(1); 
+	}//if
 
-    //change directory
-    if (!strcmp(argv[0], "cd")){
-    	chdir(argv[1]); 
-    }//if
 
-    //run last cmd
-    if (!strcmp(argv[0], "!!")){
-        printf("run last command \n");
-    }//if
 
-    if (pid < 0){ 
-        exit(1); 
-    } else if (pid == 0){
-        if(execvp(argv[0], argv) < 0){
-            exit(1); 	
-        }//if
-    } else { 
-        while(wait(&status) != pid)
-            ;// do nothing
-    }//if
+	if (pid < 0){ 
+		exit(1); 
+	} else if (pid == 0){
+		//change directory
+		if (!strcmp(argv[0], "cd")){
+			chdir(argv[1]); 
+		}//if  
+
+		//run last cmd
+		if (!strcmp(argv[0], "!!")){
+			printf("run last command \n");
+			execute(get_from_hist(h_count)); 
+		}//if
+
+		if (!strcmp(argv[0], "history")){
+			view_hist(); 
+		}//if  
+
+		exe_r = execvp(argv[0], argv);
+		if(exe_r < 0){
+			exit(1); 	
+		}//if
+	} else { 
+		wait(&status);
+		// while(wait(&status) != pid)
+		// ;// do nothing
+	}//if
 }//execute
 
 int main(void) {
-    char *cwd = NULL;
-    char *temp = NULL;
-    int should_run = 1;
-    int error;
+	char *cwd = NULL;
+	char *temp = NULL;
+	int should_run = 1;
+	int error;
 
-    char *cmd[MAX_LINE];
-    char input[MAX_LINE];
+	char *cmd[MAX_LINE];
+	char input[MAX_LINE];
 
-    //clear history
-    history_file = fopen("history.txt", "w"); 
-    if (!history_file){ 
-          printf("history file could not open \n"); 
-    }
-    fclose(history_file); 
+	//grabs current directory and sets it as 
+	home_path = getwd(home_path);
+	strcat(home_path, hist_file_name);
+	printf("HISTORY FILE: %s\n", home_path);
+	//clear history
 
-    while (should_run){
-        // grab current working directory and print prompt
-        cwd = getwd(cwd); 
-        printf("jdcsh: %s>", cwd);
-        fflush(stdout);
+	history_file = fopen(home_path, "w"); 
+	if (!history_file){ 
+		printf("history file could not open \n"); 
+	}
+	fclose(history_file); 
 
-        int num_args = 0;
-        fgets(input, MAX_LINE, stdin);
+	while (should_run){
+		// grab current working directory and print prompt
+		cwd = getwd(cwd); 
+		printf("jdcsh: %s>", cwd);
+		fflush(stdout);
 
-        // parse the input into cmd and arguments
-        cmd[0] = strtok(input, " ");
-        temp = strtok(NULL, " ");
+		int num_args = 0;
+		fgets(input, MAX_LINE, stdin);
 
-        while (temp != NULL) {
-            num_args++;
-            cmd[num_args] = temp;
-            temp = strtok(NULL, " ");
-        }//while
+		// parse the input into cmd and arguments
+		cmd[0] = strtok(input, " ");
+		temp = strtok(NULL, " ");
 
-        // remove the \n that gets added to the end
-        int lcmd_len = (int) strlen(cmd[num_args]);
-        cmd[num_args][lcmd_len-1] = '\0';
-        
-	save_in_hist(cmd, num_args, h_count); 
+		while (temp != NULL) {
+			num_args++;
+			cmd[num_args] = temp;
+			temp = strtok(NULL, " ");
+		}//while
 
-	execute(cmd, num_args);
-	
-	h_count++;
-        
-        // flush *cmd so that it is completely empty,
-        // prevents residual commands being passed
-        memset(cmd, 0, sizeof(cmd));
-    }//while
+		// remove the \n that gets added to the end
+		int lcmd_len = (int) strlen(cmd[num_args]);
+		cmd[num_args][lcmd_len-1] = '\0';
 
-    return 0;
+
+		save_in_hist(cmd, num_args, h_count); 
+
+		execute(cmd);
+		
+		h_count++;
+
+		// flush *cmd so that it is completely empty,
+		// prevents residual commands being passed
+		memset(cmd, 0, sizeof(cmd));
+	}//while
+
+	return 0;
 }//main
