@@ -59,12 +59,8 @@ int main(void)
 
         int num_args = 0;
         fgets(input, MAX_LINE, stdin);
-<<<<<<< HEAD
         printf("\n"); //new line
 
-=======
-        
->>>>>>> Removed a newline to clean up output
         //Parse the input into cmd and arguments
         cmd[0] = strtok(input, " ");
         temp = strtok(NULL, " ");
