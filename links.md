@@ -14,4 +14,5 @@
 
 [flush memory of a char array](http://stackoverflow.com/questions/1559487/how-to-empty-a-char-array)
 
+[PThreads tutorial](https://computing.llnl.gov/tutorials/pthreads/#Abstract)
 
