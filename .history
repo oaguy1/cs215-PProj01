@@ -1,11 +1,2 @@
-0 ls -l 
-1 ls -l 
-2 history
-  
-3 cd  .. 
-4 exit
-   
-5 quit
-   
-6 exit
-   
+0 ls 
+1 quit 

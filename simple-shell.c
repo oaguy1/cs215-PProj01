@@ -25,43 +25,52 @@ char ** cmd;
 
 //get_from_hist
 
-void execute(char** argv) { 
-    pid_t pid;  
+int  execute(char** argv) { 
     int status;
-    int exe_r;  
-    pid = fork(); 
+    int exe_r;
+    pid_t pid = fork(); 
+
+    printf("The PID is %d\n", pid);
 
     //exit case
     if (!strcmp(argv[0], "exit") || !strcmp(argv[0], "quit")){
-        exit(1); 
+        return 1; 
     }//if
 
-    if (pid < 0){ 
-        exit(1); 
+    if (pid < 0){
+        printf("There was an error with not enough memory\n");
+        return 1; 
     } else if (pid == 0){
+
+        printf("I am the child! PID %d\n", pid);
 
         //change directory
         if (!strcmp(argv[0], "cd")){
+            printf("Changing directory to %s\n", argv[1]);
             chdir(argv[1]);
 
         //show history command
         } else if (!strcmp(argv[0], "history")){
+            printf("Viewing history!");
             view_hist();
 
         //execute command
-        } else {  
+        } else {
 
+            printf("Executing command: %s\n", argv[0]);
             exe_r = execvp(argv[0], argv);
             if(exe_r < 0){
-                exit(1); 	
+                return 1; 	
             }//if
 
         }//if
-    } else { 
+    } else {
+        printf("I am the parent! PID %d\n", pid);
         wait(&status);
-        // while(wait(&status) != pid)
         // ;// do nothing
     }//if
+
+    return 0;
 }//execute
 
 char** parse(char* input) {
@@ -121,7 +130,7 @@ int main(void) {
 
         save_in_hist(cmd, num_args);
 
-        execute(cmd);
+        should_run = !execute(cmd);
 
         // flush cmd so that it is completely empty,
         // prevents residual commands being passed
@@ -130,15 +139,6 @@ int main(void) {
         }//for
     }//while
 
-    reclaim_history_memory();
-
-    // free memory used in this file
-    for(i = 0; i < MAX_LINE; i++) {
-        free(cmd[i]);
-        cmd[i] = NULL;
-    }//for
-    free(cmd);
-    cmd = NULL;
 
     return 0;
 }//main
