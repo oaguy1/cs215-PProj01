@@ -7,99 +7,25 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <string.h>
 
+#include "history.h"
+
+#ifndef MAX_LINE
 #define MAX_LINE		80  /* 80 chars per line, per command */
+#endif
 
 //Global Variable
-char *hist_file_name = "/.history";
+int num_args = 0;
 char *home_path;
-FILE *history_file;
-int h_count = 0;
+char ** cmd;
 
-void view_hist(){
-    int i;
-    char* temp;  
-    history_file = fopen(home_path, "r");
-    if (!history_file){
-        printf("Could not open the history"); 
-    }
+//get_from_hist
 
-    printf("\n"); 
-
-    for (i = 0; i<=h_count; i++){
-        fgets(temp, MAX_LINE, history_file);
-        printf("%s\n", temp); 	
-    }
-}
-
-int save_in_hist(char** cmd, int args, int count){ 
-    int i; 
-
-    history_file = fopen(home_path, "a"); 
-
-    if (!history_file){
-        printf("history read error"); 
-    }
-
-    printf("saving cmd: %s, to count: %d\n", cmd[0], count); 
-
-    fprintf (history_file, "%d %s ", count, cmd[0]);
-
-    for (i=1; i<=args; i++){
-        fprintf (history_file, "%s ", cmd[i]); 
-    }
-
-    fprintf (history_file, "\n"); 
-    fclose(history_file);
-}
-
-int get_from_hist(int num){ 
-    printf("DECLARING VARIABLES");
-    char* hist_cmd;
-    char* cmd;
-    char* temp;
-    int num_args = 0;
-    int i;
-
-    history_file = fopen(home_path, "r"); 
-
-    printf("IS THERE A FILE?!?!?!?!");
-    if(!history_file) { 
-        printf("History Read Error:\n");
-        printf("Those who forget their history are doomed to repeat it...\n");
-    }//if
-
-    printf("I AM READING THE FILE!!!");
-    //get the right line
-    for (i = 0; i <= num; i++){
-        fgets(hist_cmd, MAX_LINE, history_file);
-        printf("hist_cmd: %s\n", hist_cmd); 
-    }//for
-
-    fclose(history_file); 
-    printf("hist_cmd: %s\n", hist_cmd);
-
-    //grab first token, command num, toss it
-    strtok(hist_cmd, " ");
-
-    //continue parsing command
-    cmd[0] = strtok(NULL, " ");
-    temp = strtok(NULL, " ");
-
-    while (temp != NULL) {
-        num_args++;
-        cmd[num_args] = temp;
-        temp = strtok(NULL, " ");
-    }//while
-
-    execute(cmd);
-    return 0;
-}
-
-int execute(char** argv) { 
+void execute(char** argv) { 
     pid_t pid;  
     int status;
     int exe_r;  
@@ -110,26 +36,18 @@ int execute(char** argv) {
         exit(1); 
     }//if
 
-
-
     if (pid < 0){ 
         exit(1); 
     } else if (pid == 0){
-        
+
         //change directory
         if (!strcmp(argv[0], "cd")){
             chdir(argv[1]);
 
-        //repeat history command
-        } else if (!strcmp(argv[0], "!!")){
-            printf("run last command, command number %d \n", (h_count - 1));
-            get_from_hist(h_count - 1);
-            printf("WE GOT A LIVE ONE!");
-
         //show history command
         } else if (!strcmp(argv[0], "history")){
             view_hist();
-        
+
         //execute command
         } else {  
 
@@ -146,26 +64,37 @@ int execute(char** argv) {
     }//if
 }//execute
 
+char** parse(char* input) {
+    char *temp = NULL;
+
+    strcpy(cmd[0], strtok(input, " "));
+    temp = strtok(NULL, " ");
+
+    while (temp != NULL) {
+        num_args++;
+        strcpy(cmd[num_args], temp);
+        temp = strtok(NULL, " ");
+    }//while
+
+    return cmd;
+}//parse
+
 int main(void) {
     char *cwd = NULL;
-    char *temp = NULL;
     int should_run = 1;
-    int error;
-
-    char *cmd[MAX_LINE];
+    int history_cmd;
+    int i;
     char input[MAX_LINE];
+     
+    cmd = (char **) malloc(MAX_LINE*sizeof(char *));
+    for(i = 0; i < MAX_LINE; i++) {
+        cmd[i] = (char *) malloc(MAX_LINE*sizeof(char));
+    }//for
 
-    //grabs current directory and sets it as 
+    //grabs current directory and sets it as home directory
     home_path = getwd(home_path);
-    strcat(home_path, hist_file_name);
-    printf("HISTORY FILE: %s\n", home_path);
-    //clear history
-
-    history_file = fopen(home_path, "w"); 
-    if (!history_file){ 
-        printf("history file could not open \n"); 
-    }
-    fclose(history_file); 
+    strcat(home_path, "/.history");
+    init_history(home_path);
 
     while (should_run){
         // grab current working directory and print prompt
@@ -173,33 +102,43 @@ int main(void) {
         printf("jdcsh: %s>", cwd);
         fflush(stdout);
 
-        int num_args = 0;
         fgets(input, MAX_LINE, stdin);
 
-        // parse the input into cmd and arguments
-        cmd[0] = strtok(input, " ");
-        temp = strtok(NULL, " ");
-
-        while (temp != NULL) {
-            num_args++;
-            cmd[num_args] = temp;
-            temp = strtok(NULL, " ");
-        }//while
+        memcpy(cmd , parse(input), sizeof(cmd));
 
         // remove the \n that gets added to the end
         int lcmd_len = (int) strlen(cmd[num_args]);
         cmd[num_args][lcmd_len-1] = '\0';
 
-        save_in_hist(cmd, num_args, h_count); 
+        // if cmd is a history command, replace cmd with proper command from
+        // history file 
+        if(!strcmp(cmd, "!!")) {
+            memcpy(cmd, get_from_hist(get_hist_count() - 1), sizeof(cmd));
+        } else if(cmd[0][0] == '!') {
+            history_cmd = atoi(cmd[0] + 1);
+            memcpy(cmd, get_from_hist(history_cmd), sizeof(cmd));
+        }//if
+
+        save_in_hist(cmd, num_args);
 
         execute(cmd);
 
-        h_count++;
-
-        // flush *cmd so that it is completely empty,
+        // flush cmd so that it is completely empty,
         // prevents residual commands being passed
-        memset(cmd, 0, sizeof(cmd));
+        for(i = 0; i < MAX_LINE; i++) {
+            memset(cmd[i], '\0', MAX_LINE);
+        }//for
     }//while
+
+    reclaim_history_memory();
+
+    // free memory used in this file
+    for(i = 0; i < MAX_LINE; i++) {
+        free(cmd[i]);
+        cmd[i] = NULL;
+    }//for
+    free(cmd);
+    cmd = NULL;
 
     return 0;
 }//main
